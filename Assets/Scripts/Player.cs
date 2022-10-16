@@ -14,12 +14,14 @@ public class Player : MonoBehaviour
         WallSlide
     }
 
-    private const float runAcceleration = 15;
+    private const float runAcceleration = 12;
     public const float maxRunSpeed = 7;
-    private const float jumpForce = 8;
-    private const float doubleJumpForce = 8;
-    private const float gravityForce = 15;
-    private const float maxFallSpeed = 20;
+    private const float jumpForce = 10.2f;
+    private const float doubleJumpForce = 6;
+    private const float gravityForce = 25;
+    private const float maxFallSpeed = 40;
+    private const float wallSlideGravityForce = 10;
+    private const float wallSlideMaxFallSpeed = 1;
     private const float pitchVariation = 0.15f;
 
     private Rigidbody2D rb;
@@ -34,6 +36,11 @@ public class Player : MonoBehaviour
     private Coroutine crtCancelQueuedJump;
     private const float jumpBufferTime = 0.1f; //time before hitting ground a jump will still be queued
     private const float jumpGraceTime = 0.1f; //time after leaving ground player can still jump (coyote time)
+    
+    private const float wallJumpGraceTime = 0.1f; //time after leaving wall player can still jump
+    private int againstWall = 0;
+    private bool wallSliding = false;
+    private Coroutine crtLeaveWall;
 
     private bool finishedLevel = false;
     private bool invincible = false;
@@ -110,7 +117,7 @@ public class Player : MonoBehaviour
         return collider != null;
     }
 
-    /*private void FixedUpdate()
+    private void FixedUpdate()
     {
         float xInput = Input.GetAxis("Horizontal");
         float prevXVel = rb.velocity.x;
@@ -184,19 +191,9 @@ public class Player : MonoBehaviour
             canJump = true;
             canDoubleJump = true;
 
-            if (!wasOnGround || dashCountdown == 0)
-            {
-                canDash = true;
-            }
-
-            if (xForce != 0)
-            {
-                xForce *= groundForceFriction;
-                if (Mathf.Abs(xForce) < 0.05f)
-                {
-                    xForce = 0;
-                }
-            }
+            xForce = 0;
+            TryStopCoroutine(crtLeaveWall);
+            againstWall = 0;
 
             if (rb.velocity.y < 0)
             {
@@ -208,17 +205,51 @@ public class Player : MonoBehaviour
         }
         else
         {
-            yVel = Mathf.Max(rb.velocity.y - gravityForce * Time.fixedDeltaTime, -maxFallSpeed);
-
             if (wasOnGround)
             {
                 StartCoroutine(LeaveGround());
             }
 
+            if (CheckSide(0, 1, Vector2.left))
+            {
+                TryStopCoroutine(crtLeaveWall);
+                againstWall = -1;
+                wallSliding = true;
+            }
+            else if (CheckSide(2, 3, Vector2.right))
+            {
+                TryStopCoroutine(crtLeaveWall);
+                againstWall = 1;
+                wallSliding = true;
+            }
+            else if (wallSliding)
+            {
+                crtLeaveWall = StartCoroutine(LeaveWall());
+                wallSliding = false;
+            }
+
+            if (wallSliding && rb.velocity.y < 0)
+            {
+                yVel = Mathf.Max(rb.velocity.y - wallSlideGravityForce * Time.fixedDeltaTime, -wallSlideMaxFallSpeed);
+            }
+            else
+            {
+                yVel = Mathf.Max(rb.velocity.y - gravityForce * Time.fixedDeltaTime, -maxFallSpeed);
+            }
+
             if (yVel < 0)
             {
-                SetAnimState(AnimState.Fall);
+                if (wallSliding)
+                {
+                    facingLeft = againstWall > 0;
+                    SetAnimState(AnimState.WallSlide);
+                }
+                else
+                {
+                    SetAnimState(AnimState.Fall);
+                }
             }
+
         }
         wasOnGround = onGround;
 
@@ -238,18 +269,16 @@ public class Player : MonoBehaviour
                 StopCancelQueuedJump();
                 jumpQueued = false;
                 canJump = false;
-                dashCountdown = 0;
                 xForce = 0;
                 yVel = jumpForce; //Mathf.Max(jumpForce, yVel + jumpForce);
                 PlaySound(jumpSound);
                 SetAnimState(AnimState.Jump);
             }
-            else if (canDoubleJump && !persistent.sacrificedDoubleJump)
+            else if (canDoubleJump)
             {
                 StopCancelQueuedJump();
                 jumpQueued = false;
                 canDoubleJump = false;
-                dashCountdown = 0;
                 xForce = 0;
                 yVel = doubleJumpForce; //Mathf.Max(doubleJumpForce, yVel + doubleJumpForce);
                 PlaySound(doubleJumpSound);
@@ -257,71 +286,10 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (dashQueued)
-        {
-            dashQueued = false;
-            if (canDash && !persistent.sacrificedDash)
-            {
-                canDash = false;
-                dashCountdown = dashTime;
-                currentDashForce = dashForce * (facingLeft ? -1 : 1);
-                xForce = currentDashForce;
-                yVel = 0;
-                PlaySound(dashSound);
-                SetAnimState(AnimState.Dash);
-            }
-        }
-
-        if (dashCountdown > 0)
-        {
-            yVel = 0;
-            dashCountdown -= Time.fixedDeltaTime;
-            if (dashCountdown < Time.fixedDeltaTime)
-            {
-                dashCountdown = 0;
-                xForce = 0;
-            }
-            else
-            {
-                //xForce = Mathf.Lerp(0, currentDashForce, dashCountdown / dashTime);
-            }
-        }
-
         Vector2 vel = new Vector2(xVel, yVel);
         rb.velocity = vel;
         rb.MovePosition(rb.position + vel * Time.fixedDeltaTime);
-
-        if (hurtInvincible)
-        {
-            hurtInvincibleTimer += Time.fixedDeltaTime;
-            if (hurtInvincibleTimer >= hurtInvincibleTime)
-            {
-                hurtInvincible = false;
-            }
-        }
-
-        if (attackQueued)
-        {
-            Attack();
-        }
-        attackQueued = false;
-        if (spawnedAttack != null)
-        {
-            Vector3 attackPos = transform.position + (attackDistance * (facingLeft ? Vector3.left : Vector3.right));
-            spawnedAttack.transform.position = attackPos;
-            spawnedAttack.transform.localScale = new Vector3(facingLeft ? -1 : 1, 1, 1);
-        }
-
-        if (stamina < 1)
-        {
-            stamina += staminaRechargeSpeeds[persistent.NumSacrifices()];
-            if (stamina >= 1)
-            {
-                stamina = 1;
-                staminaRecharging = false;
-            }
-        }
-    }*/
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -426,6 +394,12 @@ public class Player : MonoBehaviour
     {
         yield return new WaitForSeconds(jumpGraceTime);
         canJump = false;
+    }
+
+    private IEnumerator LeaveWall()
+    {
+        yield return new WaitForSeconds(wallJumpGraceTime);
+        againstWall = 0;
     }
 
     private void SetAnimState(AnimState state)
