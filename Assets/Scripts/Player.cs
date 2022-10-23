@@ -22,6 +22,8 @@ public class Player : MonoBehaviour
     private const float maxFallSpeed = 40;
     private const float wallSlideGravityForce = 10;
     private const float wallSlideMaxFallSpeed = 1;
+    private const float wallJumpForce = jumpForce;
+    private const float wallPushForce = 5;
     private const float pitchVariation = 0.15f;
 
     private Rigidbody2D rb;
@@ -37,7 +39,7 @@ public class Player : MonoBehaviour
     private const float jumpBufferTime = 0.1f; //time before hitting ground a jump will still be queued
     private const float jumpGraceTime = 0.1f; //time after leaving ground player can still jump (coyote time)
     
-    private const float wallJumpGraceTime = 0.1f; //time after leaving wall player can still jump
+    private const float wallJumpGraceTime = 0.2f; //time after leaving wall player can still jump
     private int againstWall = 0;
     private bool wallSliding = false;
     private Coroutine crtLeaveWall;
@@ -193,6 +195,7 @@ public class Player : MonoBehaviour
 
             xForce = 0;
             TryStopCoroutine(crtLeaveWall);
+            wallSliding = false;
             againstWall = 0;
 
             if (rb.velocity.y < 0)
@@ -264,7 +267,18 @@ public class Player : MonoBehaviour
         //else: keep queued
         if (jumpQueued)
         {
-            if (canJump)
+            if (wallSliding)
+            {
+                StopCancelQueuedJump();
+                jumpQueued = false;
+                canJump = false;
+                xForce = wallPushForce * -againstWall;
+                yVel = wallJumpForce; //Mathf.Max(wallJumpForce, yVel + jumpForce);
+                PlaySound(jumpSound);
+                SetAnimState(AnimState.Jump);
+                wallSliding = false;
+            }
+            else if (canJump)
             {
                 StopCancelQueuedJump();
                 jumpQueued = false;
@@ -317,6 +331,12 @@ public class Player : MonoBehaviour
                 }
                 xForce = 0;
             }
+        }
+
+        CrumblingBlock crumble = collider.GetComponent<CrumblingBlock>();
+        if (crumble != null)
+        {
+            crumble.Crumble();
         }
     }
 

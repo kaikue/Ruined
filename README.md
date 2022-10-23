@@ -7,21 +7,42 @@ AGBIC 2022 project by Kai Kuehner. Based on RUINED by Céline Veltman: https://f
 
 ## TODO
 - Player
-	- wall jump
 	- down input stop wallslide (but stay on wall)
 		- it just moves you 1px away from the wall... Laugh's Evilly...
-- Levels
+- Mechanics
+	- springboards
+	- hourglass blocks (enable/disable)
+	- death spikes (rubble)
 	- one way platforms
 	- moving platforms?
-	- blocks that fall when you walk on them
 - Enemies
+	- can bounce on
 	- flying guy
+	- eye laser follows you
+- Graphics
+	- player
+	- tiles
+	- backgrounds
+	- crumbling tile
+		- crumbled tile
+		- fall particles
+		- land particles
 - Sound
+	- music
 	- jump
 	- flap
 	- land
 	- wall slide
+	- crumble start
+	- crumble fall
+	- crumble land
 - Atmosphere
 	- screen shake & explosions
 	- falling particles
 	- Jophiel statue
+- Levels
+	- run across crumbling blocks
+	- wall jump up crumbling blocks
+	- form bridge with crumbling blocks
+	- squish enemy with crumbling blocks
+- Ending
