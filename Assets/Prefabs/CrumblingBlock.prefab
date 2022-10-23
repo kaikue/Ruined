@@ -76,10 +76,10 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 261604349
+  m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 457ca3fb1535359449a7797ce2afa75e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 10ba754bca2cf0f41954a1749eed8bdc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -102,11 +102,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90ff044d240310e4a9b3629c9a3104cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  crumbleSprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  crumbleSprite: {fileID: 21300000, guid: d0ddd1bd33e531d48af3b8617b2de519, type: 3}
   crumbleSound: {fileID: 0}
   fallSound: {fileID: 0}
   landSound: {fileID: 0}
   falling: 0
+  activated: 0
 --- !u!61 &8995205566549777116
 BoxCollider2D:
   m_ObjectHideFlags: 0

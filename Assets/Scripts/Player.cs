@@ -72,6 +72,8 @@ public class Player : MonoBehaviour
     public GameObject playerKilledPrefab;
     public GameObject loadingScreenPrefab;
 
+    private int keys = 0;
+
     private void Start()
     {
         rb = gameObject.GetComponent<Rigidbody2D>();
@@ -338,6 +340,13 @@ public class Player : MonoBehaviour
         {
             crumble.Crumble();
         }
+
+        Door door = collider.GetComponent<Door>();
+        if (door != null && keys > 0)
+        {
+            keys--;
+            door.Open();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -346,14 +355,24 @@ public class Player : MonoBehaviour
 
         GameObject collider = collision.gameObject;
 
-        /*Gem gem = collider.GetComponent<Gem>();
-        if (gem != null)
+        Springboard springboard = collider.GetComponent<Springboard>();
+        if (springboard != null)
         {
-            Destroy(collider);
-            PlaySound(collectGemSound);
-            Instantiate(collectParticlePrefab, collider.transform.position, Quaternion.identity);
-            levelGems++;
-        }*/
+            springboard.Bounce();
+            canJump = false;
+            xForce = 0;
+            float yVel = springboard.bounceForce; //Mathf.Max(jumpForce, yVel + jumpForce);
+            Vector2 vel = new Vector2(rb.velocity.x, yVel);
+            rb.velocity = vel;
+            SetAnimState(AnimState.Jump);
+        }
+
+        Key key = collider.GetComponent<Key>();
+        if (key != null)
+        {
+            key.Collect();
+            keys++;
+        }
     }
 
     private void OnTriggerStay2D(Collider2D collision)

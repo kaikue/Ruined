@@ -10,6 +10,8 @@ public class CrumblingBlock : MonoBehaviour
     public AudioClip landSound;
     [HideInInspector]
     public bool falling = false;
+    [HideInInspector]
+    public bool activated = false;
     //public bool fallen = false;
 
     private const float CRUMBLE_TIME = 1;
@@ -29,10 +31,11 @@ public class CrumblingBlock : MonoBehaviour
 
     public void Crumble()
     {
-        if (falling)// || fallen)
+        if (activated)
         {
             return;
         }
+        activated = true;
         StartCoroutine(CrtCrumble());
     }
 

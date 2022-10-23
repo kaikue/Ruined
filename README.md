@@ -9,11 +9,19 @@ AGBIC 2022 project by Kai Kuehner. Based on RUINED by Céline Veltman: https://f
 - Player
 	- down input stop wallslide (but stay on wall)
 		- it just moves you 1px away from the wall... Laugh's Evilly...
+	- restart button
 - Mechanics
+	- hourglass blocks
+		- either kill player (death thingy inside) or wait for player to exit bounds before toggling on
 	- springboards
-	- hourglass blocks (enable/disable)
+		- maintain higher fall velocity
+		- fix launch from standing
+	- falling blocks
+		- squish player (and enemies)
+		- trigger falling blocks they land on
 	- death spikes (rubble)
-	- one way platforms
+	- one way platforms?
+		- fall through?
 	- moving platforms?
 - Enemies
 	- can bounce on
@@ -22,11 +30,16 @@ AGBIC 2022 project by Kai Kuehner. Based on RUINED by Céline Veltman: https://f
 - Graphics
 	- player
 	- tiles
-	- backgrounds
+	- toggle tiles (black/white)
 	- crumbling tile
 		- crumbled tile
 		- fall particles
 		- land particles
+	- springboard
+		- animation
+	- key/door
+		- collect/open effects
+	- backgrounds
 - Sound
 	- music
 	- jump
@@ -36,6 +49,10 @@ AGBIC 2022 project by Kai Kuehner. Based on RUINED by Céline Veltman: https://f
 	- crumble start
 	- crumble fall
 	- crumble land
+	- timed toggle
+	- springboard bounce
+	- collect key
+	- open door
 - Atmosphere
 	- screen shake & explosions
 	- falling particles
@@ -45,4 +62,9 @@ AGBIC 2022 project by Kai Kuehner. Based on RUINED by Céline Veltman: https://f
 	- wall jump up crumbling blocks
 	- form bridge with crumbling blocks
 	- squish enemy with crumbling blocks
+	- bounce on springboard(s) while dodging midair enemies
+	- go down into enemy pit and grab key
+	- bring springboard down and use it to climb
+	- falling block cascade
+	- careful not to trigger falling block
 - Ending
