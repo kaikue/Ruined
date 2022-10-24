@@ -65,5 +65,11 @@ public class CrumblingBlock : MonoBehaviour
             //TODO land particles
             //rb.constraints = RigidbodyConstraints2D.FreezeAll;
         }
+
+        CrumblingBlock crumble = collider.GetComponent<CrumblingBlock>();
+        if (crumble != null && falling)// && collision.contacts[0].normal.y < 0)
+        {
+            crumble.Crumble();
+        }
     }
 }

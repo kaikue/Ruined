@@ -18,7 +18,6 @@ AGBIC 2022 project by Kai Kuehner. Based on RUINED by Céline Veltman: https://f
 		- fix launch from standing
 	- falling blocks
 		- squish player (and enemies)
-		- trigger falling blocks they land on
 	- death spikes (rubble)
 	- one way platforms?
 		- fall through?
